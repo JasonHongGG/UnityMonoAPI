@@ -70,3 +70,10 @@ if (CurrentPlagerInstance) {
 	}
 }
 ```
+
+---
+
+未來規劃
+支援 Window 32 bit 平台
+支援 Android 平台
+支援 IL2CPP
