@@ -1,0 +1,126 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="來源檔案">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="標頭檔">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="資源檔">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="UnityMonoAPI.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="API\Mono\MonoClass.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="API\System\Memory\MemoryReader.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="API\System\Memory\MemoryRegionEnumerator.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="API\System\Memory\MemorySearch.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="API\System\Memory\MemoryWriter.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="API\System\Process\ProcessInfo.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="API\System\Process\ProcessModule.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="API\System\Process\ProcessWindow.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="API\System\Memory.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="API\System\Process.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="API\Utils\Utils.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="API\Mono\MonoClass.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="API\Mono\MonoConst.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="API\Mono\MonoFunction.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="API\Mono\MonoImage.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="API\Mono\MonoManager.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="API\Mono\MonoUtils.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="API\System\Memory\SearchStrategy\NormalSearchStrategy.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="API\System\Memory\SearchStrategy\PatternSearchStrategy.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="API\System\Memory\SearchStrategy\SearchStrategyFactory.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="API\System\Memory\SearchStrategy\SearchStrategyInterface.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="API\System\Memory\SearchStrategy\SundaySearchStrategy.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="API\System\Memory\MemoryReader.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="API\System\Memory\MemoryRegionEnumerator.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="API\System\Memory\MemorySearch.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="API\System\Memory\MemoryWriter.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="API\System\Process\ProcessInfo.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="API\System\Process\ProcessModule.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="API\System\Process\ProcessWindow.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="API\System\Memory.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="API\System\Process.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="API\Utils\Include\BS_thread_pool.hpp">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="API\Utils\Utils.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="API\MonoAPI.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
