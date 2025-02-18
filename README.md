@@ -2,7 +2,7 @@
 
 ---
 
-提供一個簡易的 Mono API 讓開發者獨立於開發環境外，方面的作 Unit Testing，測試 Release Version 的功能
+提供一個簡易的 Mono API 讓開發者獨立於開發環境外做 Unit Testing，對 Release Version 的功能做測試
 
 ---
 
