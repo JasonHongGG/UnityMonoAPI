@@ -128,5 +128,8 @@
     <ClInclude Include="API\Mono\Const.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
+    <ClInclude Include="API\System\FuntionTrigger.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

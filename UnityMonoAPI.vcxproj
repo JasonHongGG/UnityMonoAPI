@@ -154,6 +154,7 @@
     <ClInclude Include="API\Mono\MonoImage.h" />
     <ClInclude Include="API\Mono\MonoManager.h" />
     <ClInclude Include="API\Mono\MonoUtils.h" />
+    <ClInclude Include="API\System\FuntionTrigger.h" />
     <ClInclude Include="API\System\Memory.h" />
     <ClInclude Include="API\System\Memory\MemoryReader.h" />
     <ClInclude Include="API\System\Memory\MemoryRegionManager.h" />
