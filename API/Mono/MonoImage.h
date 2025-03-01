@@ -64,7 +64,7 @@ public:
 
 			// Alloc Memory
 			CValue Cnt = CValue<int>(0);
-			DWORD_PTR CallBackAddress = MemMgr.RegionEnumerator.MemoryAlloc(ProcessInfo::hProcess);
+			DWORD_PTR CallBackAddress = MemMgr.RegionMgr.MemoryAlloc(ProcessInfo::hProcess);
 
 			// Init
 			MemMgr.MemWriter.WriteBytes(CallBackAddress, EnumAssemblyCallback.data(), EnumAssemblyCallback.size());
@@ -81,7 +81,7 @@ public:
 			}
 
 			// Free Memory
-			MemMgr.RegionEnumerator.MemoryFree(ProcessInfo::hProcess, CallBackAddress);
+			MemMgr.RegionMgr.MemoryFree(ProcessInfo::hProcess, CallBackAddress);
 
 			return AssemblyImageList;
 		}

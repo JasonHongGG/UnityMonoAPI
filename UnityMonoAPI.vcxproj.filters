@@ -24,7 +24,7 @@
     <ClCompile Include="API\System\Memory\MemoryReader.cpp">
       <Filter>來源檔案</Filter>
     </ClCompile>
-    <ClCompile Include="API\System\Memory\MemoryRegionEnumerator.cpp">
+    <ClCompile Include="API\System\Memory\MemoryRegionManager.cpp">
       <Filter>來源檔案</Filter>
     </ClCompile>
     <ClCompile Include="API\System\Memory\MemorySearch.cpp">
@@ -89,7 +89,7 @@
     <ClInclude Include="API\System\Memory\MemoryReader.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
-    <ClInclude Include="API\System\Memory\MemoryRegionEnumerator.h">
+    <ClInclude Include="API\System\Memory\MemoryRegionManager.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
     <ClInclude Include="API\System\Memory\MemorySearch.h">

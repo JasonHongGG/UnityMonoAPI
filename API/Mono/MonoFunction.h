@@ -71,7 +71,7 @@ public:
 		int ArgsCnt = argList.size();
 		ValueTypeEnum ReturnType = (ValueTypeEnum)property[1];
 
-		DWORD_PTR AllocMemoryAddress = MemMgr.RegionEnumerator.MemoryAlloc(ProcessInfo::hProcess);
+		DWORD_PTR AllocMemoryAddress = MemMgr.RegionMgr.MemoryAlloc(ProcessInfo::hProcess);
 		DWORD_PTR ReturnAddress = AllocMemoryAddress + 0x300;
 		DWORD_PTR ThreadAddress = AllocMemoryAddress + 0x400;
 
@@ -174,13 +174,13 @@ public:
 
 		BYTE* ByteArray = reinterpret_cast<BYTE*>(Code.data());
 		MemMgr.MemWriter.WriteBytes(AllocMemoryAddress, ByteArray, Code.size());
-		MemMgr.RegionEnumerator.CreateRemoteThreadAndExcute(ProcessInfo::hProcess, AllocMemoryAddress);
+		MemMgr.RegionMgr.CreateRemoteThreadAndExcute(ProcessInfo::hProcess, AllocMemoryAddress);
 		
 		// Read Result
 		T result = MonoUtils.ReadValue<T>(ReturnType, ReturnAddress);
 		
 
-		MemMgr.RegionEnumerator.MemoryFree(ProcessInfo::hProcess, AllocMemoryAddress);
+		MemMgr.RegionMgr.MemoryFree(ProcessInfo::hProcess, AllocMemoryAddress);
 		return result;
 	}
 };

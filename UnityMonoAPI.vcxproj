@@ -134,7 +134,7 @@
     <ClCompile Include="API\Mono\MonoClass.cpp" />
     <ClCompile Include="API\System\Memory.cpp" />
     <ClCompile Include="API\System\Memory\MemoryReader.cpp" />
-    <ClCompile Include="API\System\Memory\MemoryRegionEnumerator.cpp" />
+    <ClCompile Include="API\System\Memory\MemoryRegionManager.cpp" />
     <ClCompile Include="API\System\Memory\MemorySearch.cpp" />
     <ClCompile Include="API\System\Memory\MemoryWriter.cpp" />
     <ClCompile Include="API\System\Process.cpp" />
@@ -156,7 +156,7 @@
     <ClInclude Include="API\Mono\MonoUtils.h" />
     <ClInclude Include="API\System\Memory.h" />
     <ClInclude Include="API\System\Memory\MemoryReader.h" />
-    <ClInclude Include="API\System\Memory\MemoryRegionEnumerator.h" />
+    <ClInclude Include="API\System\Memory\MemoryRegionManager.h" />
     <ClInclude Include="API\System\Memory\MemorySearch.h" />
     <ClInclude Include="API\System\Memory\MemoryWriter.h" />
     <ClInclude Include="API\System\Memory\SearchStrategy\NormalSearchStrategy.h" />

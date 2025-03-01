@@ -1,8 +1,8 @@
-#include "MemoryRegionEnumerator.h"
+#include "MemoryRegionManager.h"
 
 // ============================================================================================================================================================
 //                                                              EnumProcessMemoryRegions
-std::vector<MEMORY_BASIC_INFORMATION> EnumProcessMemoryRegions::enumMemoryRegions(HANDLE hProc, bool printMode)
+std::vector<MEMORY_BASIC_INFORMATION> MemoryRegionManager::enumMemoryRegions(HANDLE hProc, bool printMode)
 {
     if (printMode) PrintContent(true);
 
@@ -39,7 +39,7 @@ std::vector<MEMORY_BASIC_INFORMATION> EnumProcessMemoryRegions::enumMemoryRegion
     return regions;
 }
 
-bool EnumProcessMemoryRegions::GetMemoryRegionSizeByAddress(HANDLE hProc, DWORD_PTR Address, size_t& Size, bool printMode)
+bool MemoryRegionManager::GetMemoryRegionSizeByAddress(HANDLE hProc, DWORD_PTR Address, size_t& Size, bool printMode)
 {
     if (printMode) PrintContent(true);
 
@@ -81,7 +81,7 @@ bool EnumProcessMemoryRegions::GetMemoryRegionSizeByAddress(HANDLE hProc, DWORD_
     return false;
 }
 
-uint64_t EnumProcessMemoryRegions::GetMostNearSpaceByAddress(std::vector<MEMORY_BASIC_INFORMATION> regions, uint64_t targetAddress, uint64_t requiredSize)
+uint64_t MemoryRegionManager::GetMostNearSpaceByAddress(std::vector<MEMORY_BASIC_INFORMATION> regions, uint64_t targetAddress, uint64_t requiredSize)
 {
     MEMORY_BASIC_INFORMATION BestMbi;
     uint64_t BestDistance = 0xFFFFFFFFFFFFFFFF;
@@ -137,7 +137,7 @@ uint64_t EnumProcessMemoryRegions::GetMostNearSpaceByAddress(std::vector<MEMORY_
     return RecommendAllocateAddress;
 }
 
-void EnumProcessMemoryRegions::WriteMemoryRegionsToFile(const std::vector<MEMORY_BASIC_INFORMATION>& regions, const std::string& filename) {
+void MemoryRegionManager::WriteMemoryRegionsToFile(const std::vector<MEMORY_BASIC_INFORMATION>& regions, const std::string& filename) {
     std::ofstream file(filename, std::ofstream::out);	//預設本身就是覆蓋 (std::ofstream::out)
 
     file << "-----------------------------------------------------------------------------------" << std::endl;
@@ -184,7 +184,7 @@ void EnumProcessMemoryRegions::WriteMemoryRegionsToFile(const std::vector<MEMORY
     file.close();
 }
 
-void EnumProcessMemoryRegions::PrintContent(bool prologue, MEMORY_BASIC_INFORMATION mbi) {
+void MemoryRegionManager::PrintContent(bool prologue, MEMORY_BASIC_INFORMATION mbi) {
     if (!prologue && mbi.BaseAddress != NULL)
     {
         printf("0x%p\t 0x%p\t %08llX\t ", (void*)mbi.BaseAddress, (void*)((DWORD_PTR)mbi.BaseAddress + mbi.RegionSize), mbi.RegionSize);

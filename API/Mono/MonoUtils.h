@@ -90,13 +90,13 @@ public:
 	std::string Value = "";
 	CString(std::string value) : Value(value)
 	{
-		Address = MemMgr.RegionEnumerator.MemoryAlloc(ProcessInfo::hProcess, 0, Value.size() + 1);
+		Address = MemMgr.RegionMgr.MemoryAlloc(ProcessInfo::hProcess, 0, Value.size() + 1);
 		MemMgr.MemWriter.WriteBytes(Address, reinterpret_cast<BYTE*>(Value.data()), Value.size());
 	};
 
 	~CString()
 	{
-		MemMgr.RegionEnumerator.MemoryFree(ProcessInfo::hProcess, Address);
+		MemMgr.RegionMgr.MemoryFree(ProcessInfo::hProcess, Address);
 	}
 };
 
@@ -116,7 +116,7 @@ public:
 		if (address > 0)
 			Address = address;
 		else
-			Address = MemMgr.RegionEnumerator.MemoryAlloc(ProcessInfo::hProcess, 0, (ElemCount * ElemSize) + 1);
+			Address = MemMgr.RegionMgr.MemoryAlloc(ProcessInfo::hProcess, 0, (ElemCount * ElemSize) + 1);
 
 		for (int i = 0; i < Elements.size(); i++) {
 			MemMgr.MemWriter.WriteMem(Address + (i * ElemSize), Elements[i]);
@@ -124,7 +124,7 @@ public:
 	};
 	~CArray()
 	{
-		MemMgr.RegionEnumerator.MemoryFree(ProcessInfo::hProcess, Address);
+		MemMgr.RegionMgr.MemoryFree(ProcessInfo::hProcess, Address);
 	};
 
 	void ReadResult()
@@ -146,12 +146,12 @@ public:
 	T Value;
 	CValue(T value) : Value(value)
 	{
-		Address = MemMgr.RegionEnumerator.MemoryAlloc(ProcessInfo::hProcess, 0, sizeof(T));
+		Address = MemMgr.RegionMgr.MemoryAlloc(ProcessInfo::hProcess, 0, sizeof(T));
 		MemMgr.MemWriter.WriteMem(Address, Value);
 	};
 	~CValue()
 	{
-		MemMgr.RegionEnumerator.MemoryFree(ProcessInfo::hProcess, Address);
+		MemMgr.RegionMgr.MemoryFree(ProcessInfo::hProcess, Address);
 	};
 
 	T GetValue()

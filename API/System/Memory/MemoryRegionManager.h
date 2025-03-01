@@ -9,11 +9,11 @@
 #include <iostream>
 #include "../Process.h"
 
-class EnumProcessMemoryRegions
+class MemoryRegionManager
 {
 public:
-    EnumProcessMemoryRegions() {};
-    ~EnumProcessMemoryRegions() {};
+    MemoryRegionManager() {};
+    ~MemoryRegionManager() {};
 
     std::vector<MEMORY_BASIC_INFORMATION> enumMemoryRegions(HANDLE hProc, bool printMode = false);
 

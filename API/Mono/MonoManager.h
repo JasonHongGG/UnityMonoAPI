@@ -54,7 +54,7 @@ public:
 
 		// Execute Code
 		MemMgr.MemWriter.WriteBytes(AllocMemoryAddress, Code.data(), Code.size());
-		MemMgr.RegionEnumerator.CreateRemoteThreadAndExcute(ProcessInfo::hProcess, AllocMemoryAddress);
+		MemMgr.RegionMgr.CreateRemoteThreadAndExcute(ProcessInfo::hProcess, AllocMemoryAddress);
 
 		DWORD_PTR FunctionAddress = 0x0;
 		MemMgr.MemReader.ReadMem(FunctionAddress, ReturnAddress);
@@ -63,16 +63,16 @@ public:
 
 	DWORD_PTR GetFunctionAddress(HMODULE hModule, std::string FunctionName)
 	{
-		DWORD_PTR AllocMemoryAddress = MemMgr.RegionEnumerator.MemoryAlloc(ProcessInfo::hProcess);
+		DWORD_PTR AllocMemoryAddress = MemMgr.RegionMgr.MemoryAlloc(ProcessInfo::hProcess);
 		DWORD_PTR FunctionAddress = FindMonoApiAddress(AllocMemoryAddress, FunctionName, hModule);
-		MemMgr.RegionEnumerator.MemoryFree(ProcessInfo::hProcess, AllocMemoryAddress);
+		MemMgr.RegionMgr.MemoryFree(ProcessInfo::hProcess, AllocMemoryAddress);
 		return FunctionAddress;
 	}
 
 	void BuildMonoFunctSet()
 	{
 		FunctSet = MonoNativeFuncSet();
-		DWORD_PTR AllocMemoryAddress = MemMgr.RegionEnumerator.MemoryAlloc(ProcessInfo::hProcess);
+		DWORD_PTR AllocMemoryAddress = MemMgr.RegionMgr.MemoryAlloc(ProcessInfo::hProcess);
 		if (IsIL2CPP) {
 			for (const std::string functName : il2cpp_native_func_name) {
 				FunctSet.FunctPtrSet[il2cpp_mono_native_func_map[functName]]->FunctionAddress = FindMonoApiAddress(AllocMemoryAddress, functName);
@@ -83,7 +83,7 @@ public:
 				FunctSet.FunctPtrSet[functName]->FunctionAddress = FindMonoApiAddress(AllocMemoryAddress, functName);
 			}
 		}
-		MemMgr.RegionEnumerator.MemoryFree(ProcessInfo::hProcess, AllocMemoryAddress);
+		MemMgr.RegionMgr.MemoryFree(ProcessInfo::hProcess, AllocMemoryAddress);
 	}
 
 	void GetRootDomain()

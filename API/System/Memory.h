@@ -17,7 +17,7 @@
 #include "Memory/MemoryReader.h"
 #include "Memory/MemoryWriter.h"
 #include "Memory/MemorySearch.h"    
-#include "Memory/MemoryRegionEnumerator.h"
+#include "Memory/MemoryRegionManager.h"
 
 
 class Memory {
@@ -25,13 +25,13 @@ public:
     MemoryReader MemReader;
     MemoryWriter MemWriter;
     MemorySearch Scanner;
-    EnumProcessMemoryRegions RegionEnumerator;
+    MemoryRegionManager RegionMgr;
 
     Memory(){
         MemReader = MemoryReader();
         MemWriter = MemoryWriter();
         Scanner = MemorySearch();
-        RegionEnumerator = EnumProcessMemoryRegions();
+        RegionMgr = MemoryRegionManager();
     }
     ~Memory(){}
 
