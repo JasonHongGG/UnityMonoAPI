@@ -6,7 +6,7 @@
 #include <ranges>
 #include "MonoImage.h"
 #include "MonoUtils.h"
-#include "MonoConst.h"
+#include "Const.h"
 #include "MonoFunction.h"
 
 class MonoClassAPI;
@@ -156,7 +156,10 @@ T MonoMethod::Call(Args... args)
 	FunctObject->FunctionAddress = GetAddress();
 	Class->ClassAPI->FunctSet->FunctPtrSet[Name] = FunctObject;
 	mono_native_func_name.push_back(Name);
-	mono_native_func_property[Name] = { ParamCnt, ReturnType };
+	if(IsIL2CPP)
+		il2cpp_native_func_property[Name] = { ParamCnt, ReturnType };
+	else
+		mono_native_func_property[Name] = { ParamCnt, ReturnType };
 
 	if (!IsStatic(this))
 		return FunctObject->Call<T>(CALL_TYPE_THISCALL, *Class->ClassAPI->ThreadFunctionList, Class->Instance, args...);
@@ -178,9 +181,17 @@ inline std::string GetReadType(std::string TypeName)
 template <typename T>
 inline T MonoClassAPI::GetStaticFieldValue(MonoClass* Class, MonoField* Field, std::string TypeName)
 {
-	DWORD_PTR Address = GetStaticFieldAddress(Class, Field);
-	if (Address)
-		return MonoUtils.ReadValue<T>(FieldTypeNameMap[GetReadType(TypeName)], Address);
+	if (IsIL2CPP) {
+		CValue Address = CValue<DWORD_PTR>(0);
+		FunctSet->FunctPtrSet["il2cpp_field_static_get_value"]->Call<DWORD_PTR>(CALL_TYPE_CDECL, *ThreadFunctionList, Field->Handle, Address.Address);
+		return MonoUtils.ReadValue<T>(FieldTypeNameMap[GetReadType(TypeName)], Address.Address);
+	}
+	else {
+		DWORD_PTR Address = GetStaticFieldAddress(Class, Field);
+		if (Address)
+			return MonoUtils.ReadValue<T>(FieldTypeNameMap[GetReadType(TypeName)], Address);
+	}	
+
 	return T();
 }
 

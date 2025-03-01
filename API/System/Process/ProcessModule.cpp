@@ -26,6 +26,32 @@ HMODULE ProcessModule::GetModule(size_t PID, const wchar_t* name)
     return 0;
 }
 
+std::vector<HMODULE> ProcessModule::GetAllModule(size_t PID)
+{
+	std::vector<HMODULE> moduleList;
+	HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE | TH32CS_SNAPMODULE32, (DWORD)PID);
+	MODULEENTRY32W moduleEntry;             // szModule ©M szExePath ¬O Unicode 
+	moduleEntry.dwSize = sizeof(MODULEENTRY32W);
+	if (Module32FirstW(hSnapshot, &moduleEntry)) {
+		do {
+			moduleList.push_back(moduleEntry.hModule);
+		} while (Module32NextW(hSnapshot, &moduleEntry));
+	}
+	CloseHandle(hSnapshot);
+	return moduleList;
+}
+
+std::string ProcessModule::GetModuleName(HANDLE hProcess, HMODULE hModule) {
+    char moduleName[MAX_PATH];
+
+    if (GetModuleBaseNameA(hProcess, hModule, moduleName, sizeof(moduleName))) {
+        return std::string(moduleName);
+    }
+    else {
+        return "Unknown";
+    }
+}
+
 DWORD_PTR ProcessModule::GetModuleBaseAddress(size_t PID, LPCTSTR name)
 {
     HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE | TH32CS_SNAPMODULE32, (DWORD)PID);

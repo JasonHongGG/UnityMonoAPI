@@ -146,9 +146,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="API\MonoAPI.h" />
+    <ClInclude Include="API\Mono\Const.h" />
     <ClInclude Include="API\Mono\MonoClass.h" />
     <ClInclude Include="API\Mono\MonoConst.h" />
     <ClInclude Include="API\Mono\MonoFunction.h" />
+    <ClInclude Include="API\Mono\MonoIL2CPPConst.h" />
     <ClInclude Include="API\Mono\MonoImage.h" />
     <ClInclude Include="API\Mono\MonoManager.h" />
     <ClInclude Include="API\Mono\MonoUtils.h" />

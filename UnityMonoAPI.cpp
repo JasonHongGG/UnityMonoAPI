@@ -5,8 +5,7 @@
 #include <vector>
 #include "API/MonoAPI.h"
 
-
-int main()
+void Test1()
 {
 	// 初始化 Process，參數為 Process Name
 	InitialProcess(L"Content Warning.exe");
@@ -46,23 +45,35 @@ int main()
 	if (CurrentPlagerInstance) {
 		PlayerClass->Instance = CurrentPlagerInstance;
 		while (CurrentRound <= TestRoundCnt) {
-			printf("Take Damage ID 1");
+			printf("Take Damage ID 1\n");
 			TakeDamageMethod->Call<float>((float)10);
 			Sleep(1000);
-			printf("Take Damage ID 2");
+			printf("Take Damage ID 2\n");
 			TakeDamageMethod->Call<float>((float)10);
 			Sleep(1000);
-			printf("Take Damage ID 3");
+			printf("Take Damage ID 3\n");
 			TakeDamageMethod->Call<float>((float)10);
 			Sleep(1000);
-			printf("Heal ID 1");
+			printf("Heal ID 1\n");
 			HealMethod->Call<float>((float)20);
 			Sleep(1000);
-			printf("Heal ID 2");
+			printf("Heal ID 2\n");
 			HealMethod->Call<float>((float)20);
 			Sleep(1000);
-
 			CurrentRound++;
 		}
 	}
+}
+
+int main()
+{
+	InitialProcess(L"Wildfrost.exe");
+	std::map<std::string, std::vector<MonoClass*>> MonoClassMap = MonoMgr.ClassAPI->FindClassesInImageByNames({
+		{"Assembly-CSharp.dll", {"ShopRoutine"}},
+		});
+	MonoClass* ShopRoutine = MonoClassMap["Assembly-CSharp.dll"][0];
+	ShopRoutine->Instance = 0x0000019133B84400;
+	MonoMethod* SetUp = ShopRoutine->FindMethod("Close");
+	SetUp->Call<DWORD_PTR>();
+
 }

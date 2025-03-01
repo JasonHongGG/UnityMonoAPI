@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include <Windows.h>
-#include "MonoConst.h"
+#include "Const.h"
 #include "../System/Memory.h"
 
 class MonoUtilsSet
@@ -135,5 +135,29 @@ public:
 			MemMgr.MemReader.ReadMem(temp, Address + (i * ElemSize));
 			Elements.push_back(temp);
 		}
+	}
+};
+
+template <typename T>
+class CValue
+{
+public:
+	DWORD_PTR Address = 0x0;
+	T Value;
+	CValue(T value) : Value(value)
+	{
+		Address = MemMgr.RegionEnumerator.MemoryAlloc(ProcessInfo::hProcess, 0, sizeof(T));
+		MemMgr.MemWriter.WriteMem(Address, Value);
+	};
+	~CValue()
+	{
+		MemMgr.RegionEnumerator.MemoryFree(ProcessInfo::hProcess, Address);
+	};
+
+	T GetValue()
+	{
+		T result;
+		MemMgr.MemReader.ReadMem(result, Address);
+		return result;
 	}
 };

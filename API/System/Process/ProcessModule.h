@@ -15,6 +15,10 @@ public:
     // Module (要注意的是有些程式會有多個相同名稱的 Exe、DLL，比如 RPG Maker 的遊戲)，可能會需要用特別的條件選取，像是記憶體占用最多的
     HMODULE GetModule(size_t PID, const wchar_t* name);
 
+    std::vector<HMODULE> GetAllModule(size_t PID);
+
+    std::string GetModuleName(HANDLE hProcess, HMODULE hModule);
+
     DWORD_PTR GetModuleBaseAddress(size_t PID, LPCTSTR name);
 
     DWORD GetModuleSize(HANDLE hProcess, HMODULE hModule);

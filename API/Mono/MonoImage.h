@@ -2,6 +2,7 @@
 #include <Windows.h>
 #include <vector>
 #include <string>
+#include "Const.h"
 #include "MonoFunction.h"
 
 class MonoAssemblyImage
@@ -31,44 +32,59 @@ public:
 
 	std::vector<MonoAssemblyImage> EnumAssemblies()
 	{
-		std::vector<BYTE> EnumAssemblyCallback = {
-			0x8b,0x02,0x3d,0xfe,0x01,0x00,0x00,0x77,0x07,0x48,0x89,0x4c,0xc2,0x08,0xff,0x02,0xc3
-		};
-		/*
-		void _cdecl enum_assembly_callback(void* domain, CUSTOM_DOMAIN_ARRAY64 * v)
+		if (IsIL2CPP)
 		{
-			if (v->cnt <= 510) {
-				v->domains[v->cnt] = (UINT64)domain;
-				v->cnt += 1;
+			CValue Cnt = CValue<int>(0);
+			DWORD_PTR Address = FunctSet->FunctPtrSet["il2cpp_domain_get_assemblies"]->Call<DWORD_PTR>(CALL_TYPE_CDECL, *ThreadFunctionList, ThreadFunctionList->at(0), Cnt.Address);
+			int AssemblyCnt = Cnt.GetValue();
+			std::vector<DWORD_PTR> AssemblyList = MemMgr.MemReader.ReadArray<DWORD_PTR>(Address, AssemblyCnt);
+
+			// Create Assembly Image
+			std::vector<MonoAssemblyImage> AssemblyImageList;
+			for (int i = 0; i < AssemblyList.size(); i++) {
+				AssemblyImageList.push_back(MonoAssemblyImage(AssemblyList[i]));
 			}
+
+			return AssemblyImageList;
 		}
-		*/
+		else 
+		{
+			std::vector<BYTE> EnumAssemblyCallback = {
+			0x8b,0x02,0x3d,0xfe,0x01,0x00,0x00,0x77,0x07,0x48,0x89,0x4c,0xc2,0x08,0xff,0x02,0xc3
+			};
+			/*
+			void _cdecl enum_assembly_callback(void* domain, CUSTOM_DOMAIN_ARRAY64 * v)
+			{
+				if (v->cnt <= 510) {
+					v->domains[v->cnt] = (UINT64)domain;
+					v->cnt += 1;
+				}
+			}
+			*/
 
-		// Alloc Memory
-		DWORD_PTR CallBackAddress = MemMgr.RegionEnumerator.MemoryAlloc(ProcessInfo::hProcess);
-		DWORD_PTR UserDataAddress = MemMgr.RegionEnumerator.MemoryAlloc(ProcessInfo::hProcess);
+			// Alloc Memory
+			CValue Cnt = CValue<int>(0);
+			DWORD_PTR CallBackAddress = MemMgr.RegionEnumerator.MemoryAlloc(ProcessInfo::hProcess);
 
-		// Init
-		MemMgr.MemWriter.WriteBytes(CallBackAddress, EnumAssemblyCallback.data(), EnumAssemblyCallback.size());
-		MemMgr.MemWriter.WriteMem<int>(UserDataAddress, 0);
+			// Init
+			MemMgr.MemWriter.WriteBytes(CallBackAddress, EnumAssemblyCallback.data(), EnumAssemblyCallback.size());
 
-		// Read Assembly List
-		int AssemblyCnt = 0;
-		FunctSet->FunctPtrSet["mono_assembly_foreach"]->Call<DWORD_PTR>(CALL_TYPE_CDECL, *ThreadFunctionList, CallBackAddress, UserDataAddress);
-		MemMgr.MemReader.ReadMem<int>(AssemblyCnt, UserDataAddress);
-		std::vector<DWORD_PTR> AssemblyList = MemMgr.MemReader.ReadArray<DWORD_PTR>(UserDataAddress + ProcessInfo::ProcOffestAdd, AssemblyCnt);
+			// Read Assembly List
+			FunctSet->FunctPtrSet["mono_assembly_foreach"]->Call<DWORD_PTR>(CALL_TYPE_CDECL, *ThreadFunctionList, CallBackAddress, Cnt.Address);
+			int AssemblyCnt = Cnt.GetValue();
+			std::vector<DWORD_PTR> AssemblyList = MemMgr.MemReader.ReadArray<DWORD_PTR>(Cnt.Address + ProcessInfo::ProcOffestAdd, AssemblyCnt);
 
-		// Create Assembly Image
-		std::vector<MonoAssemblyImage> AssemblyImageList;
-		for (int i = 0; i < AssemblyList.size(); i++) {
-			AssemblyImageList.push_back(MonoAssemblyImage(AssemblyList[i]));
+			// Create Assembly Image
+			std::vector<MonoAssemblyImage> AssemblyImageList;
+			for (int i = 0; i < AssemblyList.size(); i++) {
+				AssemblyImageList.push_back(MonoAssemblyImage(AssemblyList[i]));
+			}
+
+			// Free Memory
+			MemMgr.RegionEnumerator.MemoryFree(ProcessInfo::hProcess, CallBackAddress);
+
+			return AssemblyImageList;
 		}
-
-		// Free Memory
-		MemMgr.RegionEnumerator.MemoryFree(ProcessInfo::hProcess, UserDataAddress);
-		MemMgr.RegionEnumerator.MemoryFree(ProcessInfo::hProcess, CallBackAddress);
-
-		return AssemblyImageList;
 	}
 
 	MonoImage* FindImageByName(std::string ImageName)

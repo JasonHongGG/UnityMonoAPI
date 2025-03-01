@@ -12,7 +12,7 @@ class MonoManager
 {
 public:
 	MonoNativeFuncSet FunctSet;
-	HANDLE hMonoModule = NULL;
+	HMODULE hMonoModule = NULL;
 	DWORD_PTR GetProcAddressFunctionAddress = 0x0;
 	DWORD_PTR RootDomainAddress = 0x0;
 	DWORD_PTR AttachAddress = 0x0;
@@ -23,8 +23,9 @@ public:
 	MonoClassAPI* ClassAPI;
 public:
 
-	DWORD_PTR FindMonoApiAddress(DWORD_PTR AllocMemoryAddress, std::string FunctionName)
+	DWORD_PTR FindMonoApiAddress(DWORD_PTR AllocMemoryAddress, std::string FunctionName, HMODULE hModule = nullptr)
 	{
+		if (!hModule) hModule = hMonoModule;
 		DWORD_PTR ReturnAddress = AllocMemoryAddress + 0x300;
 		DWORD_PTR FunctNameAddress = AllocMemoryAddress + 0x200;
 
@@ -45,7 +46,7 @@ public:
 			0xC3															// ret
 		};
 		MonoUtils.PatchAddress(Code, { 6, 16, 26, 38 }, {
-				(DWORD_PTR)hMonoModule,			// 蠢传 rcx
+				(DWORD_PTR)hModule,			// 蠢传 rcx
 				FunctNameAddress,				// 蠢传 rdx
 				GetProcAddressFunctionAddress,  // 蠢传 rax
 				ReturnAddress					// 蠢传 r12
@@ -60,21 +61,35 @@ public:
 		return FunctionAddress;
 	}
 
+	DWORD_PTR GetFunctionAddress(HMODULE hModule, std::string FunctionName)
+	{
+		DWORD_PTR AllocMemoryAddress = MemMgr.RegionEnumerator.MemoryAlloc(ProcessInfo::hProcess);
+		DWORD_PTR FunctionAddress = FindMonoApiAddress(AllocMemoryAddress, FunctionName, hModule);
+		MemMgr.RegionEnumerator.MemoryFree(ProcessInfo::hProcess, AllocMemoryAddress);
+		return FunctionAddress;
+	}
 
 	void BuildMonoFunctSet()
 	{
 		FunctSet = MonoNativeFuncSet();
 		DWORD_PTR AllocMemoryAddress = MemMgr.RegionEnumerator.MemoryAlloc(ProcessInfo::hProcess);
-		for (const std::string functName : mono_native_func_name) {
-			FunctSet.FunctPtrSet[functName]->FunctionAddress = FindMonoApiAddress(AllocMemoryAddress, functName);
+		if (IsIL2CPP) {
+			for (const std::string functName : il2cpp_native_func_name) {
+				FunctSet.FunctPtrSet[il2cpp_mono_native_func_map[functName]]->FunctionAddress = FindMonoApiAddress(AllocMemoryAddress, functName);
+			}
 		}
-
+		else {
+			for (const std::string functName : mono_native_func_name) {
+				FunctSet.FunctPtrSet[functName]->FunctionAddress = FindMonoApiAddress(AllocMemoryAddress, functName);
+			}
+		}
 		MemMgr.RegionEnumerator.MemoryFree(ProcessInfo::hProcess, AllocMemoryAddress);
 	}
 
 	void GetRootDomain()
 	{
-		RootDomainAddress = (DWORD_PTR)FunctSet.FunctPtrSet["mono_get_root_domain"]->Call<DWORD_PTR>(CALL_TYPE_CDECL);
+		if(IsIL2CPP) RootDomainAddress = (DWORD_PTR)FunctSet.FunctPtrSet["mono_domain_get"]->Call<DWORD_PTR>(CALL_TYPE_CDECL);
+		else RootDomainAddress = (DWORD_PTR)FunctSet.FunctPtrSet["mono_get_root_domain"]->Call<DWORD_PTR>(CALL_TYPE_CDECL);
 	}
 
 	void Init()
@@ -84,6 +99,8 @@ public:
 
 		hMonoModule = ProcMgr.ModuleMgr.GetModule(ProcessInfo::PID, L"mono.dll");
 		if (!hMonoModule) hMonoModule = ProcMgr.ModuleMgr.GetModule(ProcessInfo::PID, L"mono-2.0-bdwgc.dll");
+		if (!hMonoModule) { hMonoModule = ProcMgr.ModuleMgr.GetModule(ProcessInfo::PID, L"GameAssembly.dll"); IsIL2CPP = true; }
+
 		BuildMonoFunctSet();
 		GetRootDomain();
 

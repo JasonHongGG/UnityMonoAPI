@@ -122,5 +122,11 @@
     <ClInclude Include="API\MonoAPI.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
+    <ClInclude Include="API\Mono\MonoIL2CPPConst.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="API\Mono\Const.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -111,6 +111,9 @@ MonoField* MonoClass::FindField(std::string FieldName)
 
 DWORD_PTR MonoClass::GetVtable()
 {
+	if (IsIL2CPP)
+		return this->Handle;
+
 	if (!VTable)
 		VTable = ClassAPI->FunctSet->FunctPtrSet["mono_class_vtable"]->Call<DWORD_PTR>(CALL_TYPE_CDECL, *ClassAPI->ThreadFunctionList, ClassAPI->ThreadFunctionList->at(0), this->Handle);
 	return VTable;
@@ -203,6 +206,7 @@ MonoField* MonoClassAPI::FindFieldInClassByName(MonoClass* Class, std::string Fi
 
 DWORD_PTR MonoClassAPI::GetStaticFieldAddress(MonoClass* Class, MonoField* Field)
 {
+	if (IsIL2CPP) return 0x0;
 	DWORD_PTR vtable = Class->GetVtable();
 	if (vtable) {
 		DWORD_PTR StaticFieldData = FunctSet->FunctPtrSet["mono_vtable_get_static_field_data"]->Call<DWORD_PTR>(CALL_TYPE_CDECL, *ThreadFunctionList, vtable);
@@ -224,69 +228,89 @@ MonoMethod* MonoClassAPI::FindMethodInClass(MonoClass* Class, std::string Method
 
 std::string MonoClassAPI::GetMethodSignature(MonoMethod* Method)
 {
-	DWORD_PTR MethodSigAddress = FunctSet->FunctPtrSet["mono_method_signature"]->Call<DWORD_PTR>(CALL_TYPE_CDECL, *ThreadFunctionList, Method->Handle);
-	std::string ParamDesc = FunctSet->FunctPtrSet["mono_signature_get_desc"]->Call<std::string>(CALL_TYPE_CDECL, *ThreadFunctionList, MethodSigAddress, 1); // Param Type
-	int ParamCnt = FunctSet->FunctPtrSet["mono_signature_get_param_count"]->Call<int>(CALL_TYPE_CDECL, *ThreadFunctionList, MethodSigAddress);
-	Method->ParamCnt = ParamCnt;
-
-	// Get Param Names
-	std::vector<std::string> ParamNames;
-	if (ParamCnt)
-	{
-		std::vector<DWORD_PTR> temp(ParamCnt, 0);
-		CArray NamesPtrArray(temp);
-		FunctSet->FunctPtrSet["mono_method_get_param_names"]->Call<DWORD_PTR>(CALL_TYPE_CDECL, *ThreadFunctionList, Method->Handle, NamesPtrArray.Address);
-		NamesPtrArray.ReadResult();
+	if (IsIL2CPP) {
+		int ParamCnt = FunctSet->FunctPtrSet["il2cpp_method_get_param_count"]->Call<DWORD_PTR>(CALL_TYPE_CDECL, *ThreadFunctionList, Method->Handle);
+		std::string ParaInfo = "";
 		for (int i = 0; i < ParamCnt; i++) {
-			BYTE ParamNameBytes[60];
-			MemMgr.MemReader.ReadString(NamesPtrArray.Elements[i], ParamNameBytes);
-			std::string ParamName(reinterpret_cast<char*>(ParamNameBytes));
-			ParamNames.push_back(ParamName);
+			std::string ParamName = FunctSet->FunctPtrSet["il2cpp_method_get_param_name"]->Call<std::string>(CALL_TYPE_CDECL, *ThreadFunctionList, Method->Handle, i);
+			DWORD_PTR ParamTypeAddress = FunctSet->FunctPtrSet["il2cpp_method_get_param"]->Call<DWORD_PTR>(CALL_TYPE_CDECL, *ThreadFunctionList, Method->Handle, i);
+			std::string TypeName = FunctSet->FunctPtrSet["mono_type_get_name"]->Call<std::string>(CALL_TYPE_CDECL, *ThreadFunctionList, ParamTypeAddress); //TODO
+			ParaInfo += TypeName + " " + ParamName + ", ";
 		}
-			
+		DWORD_PTR ReturnTypeAddress = FunctSet->FunctPtrSet["il2cpp_method_get_return_type"]->Call<DWORD_PTR>(CALL_TYPE_CDECL, *ThreadFunctionList, Method->Handle);
+		std::string ReturnTypeName = FunctSet->FunctPtrSet["mono_type_get_name"]->Call<std::string>(CALL_TYPE_CDECL, *ThreadFunctionList, ReturnTypeAddress); //TODO
+		return ReturnTypeName + " (" + ParaInfo.substr(0, ParaInfo.size() - 2) + ")";	// Remove ", " at the end
 	}
+	else {
+		DWORD_PTR MethodSigAddress = FunctSet->FunctPtrSet["mono_method_signature"]->Call<DWORD_PTR>(CALL_TYPE_CDECL, *ThreadFunctionList, Method->Handle);
+		std::string ParamDesc = FunctSet->FunctPtrSet["mono_signature_get_desc"]->Call<std::string>(CALL_TYPE_CDECL, *ThreadFunctionList, MethodSigAddress, 1); // Param Type
+		int ParamCnt = FunctSet->FunctPtrSet["mono_signature_get_param_count"]->Call<int>(CALL_TYPE_CDECL, *ThreadFunctionList, MethodSigAddress);
+		Method->ParamCnt = ParamCnt;
 
-	// Get Return Type
-	DWORD_PTR ReturnTypeAddress = FunctSet->FunctPtrSet["mono_signature_get_return_type"]->Call<DWORD_PTR>(CALL_TYPE_CDECL, *ThreadFunctionList, MethodSigAddress);
-	std::string	ReturnType = FunctSet->FunctPtrSet["mono_type_get_name"]->Call<std::string>(CALL_TYPE_CDECL, *ThreadFunctionList, ReturnTypeAddress);
-
-	// Get Param Info
-	std::string ParaInfo = "";
-	if (ParamCnt > 0 || !ParamDesc.empty()) {
-		std::vector<std::string> ParamTypeVector = Utils.GetTokens(ParamDesc, ',');
-
-		if (ParamCnt == static_cast<int>(ParamTypeVector.size())) {
-			std::ostringstream oss;
-			for (int i = 0; i < ParamCnt; ++i) {
-				if (i > 0) oss << ", ";
-				oss << ParamTypeVector[i] << " " << ParamNames[i];
+		// Get Param Names
+		std::vector<std::string> ParamNames;
+		if (ParamCnt)
+		{
+			std::vector<DWORD_PTR> temp(ParamCnt, 0);
+			CArray NamesPtrArray(temp);
+			FunctSet->FunctPtrSet["mono_method_get_param_names"]->Call<DWORD_PTR>(CALL_TYPE_CDECL, *ThreadFunctionList, Method->Handle, NamesPtrArray.Address);
+			NamesPtrArray.ReadResult();
+			for (int i = 0; i < ParamCnt; i++) {
+				BYTE ParamNameBytes[60];
+				MemMgr.MemReader.ReadString(NamesPtrArray.Elements[i], ParamNameBytes);
+				std::string ParamName(reinterpret_cast<char*>(ParamNameBytes));
+				ParamNames.push_back(ParamName);
 			}
-			ParaInfo = oss.str();
-		}
-		else {
-			ParaInfo = "<parse error>";
-		}
-	}
 
-	return ReturnType + " (" + ParaInfo + ")";
+		}
+
+		// Get Return Type
+		DWORD_PTR ReturnTypeAddress = FunctSet->FunctPtrSet["mono_signature_get_return_type"]->Call<DWORD_PTR>(CALL_TYPE_CDECL, *ThreadFunctionList, MethodSigAddress);
+		std::string	ReturnType = FunctSet->FunctPtrSet["mono_type_get_name"]->Call<std::string>(CALL_TYPE_CDECL, *ThreadFunctionList, ReturnTypeAddress);
+
+		// Get Param Info
+		std::string ParaInfo = "";
+		if (ParamCnt > 0 || !ParamDesc.empty()) {
+			std::vector<std::string> ParamTypeVector = Utils.GetTokens(ParamDesc, ',');
+
+			if (ParamCnt == static_cast<int>(ParamTypeVector.size())) {
+				std::ostringstream oss;
+				for (int i = 0; i < ParamCnt; ++i) {
+					if (i > 0) oss << ", ";
+					oss << ParamTypeVector[i] << " " << ParamNames[i];
+				}
+				ParaInfo = oss.str();
+			}
+			else {
+				ParaInfo = "<parse error>";
+			}
+		}
+
+		return ReturnType + " (" + ParaInfo + ")";
+	}
 }
 
 DWORD_PTR MonoClassAPI::CompileMethod(MonoMethod* Method)
 {
+	if (IsIL2CPP) {
+		DWORD_PTR Address;
+		MemMgr.MemReader.ReadMem<DWORD_PTR>(Address, Method->Handle);
+		return Address;
+	}
+	else {
+		DWORD_PTR ClassAddress = FunctSet->FunctPtrSet["mono_method_get_class"]->Call<DWORD_PTR>(CALL_TYPE_CDECL, *ThreadFunctionList, Method->Handle);
+		if (!ClassAddress) return 0;
 
-	DWORD_PTR ClassAddress = FunctSet->FunctPtrSet["mono_method_get_class"]->Call<DWORD_PTR>(CALL_TYPE_CDECL, *ThreadFunctionList, Method->Handle);
-	if (!ClassAddress) return 0;
-
-
-	bool IsGenericExist = FunctSet->FunctPtrSet.find("mono_class_is_generic") != FunctSet->FunctPtrSet.end() and FunctSet->FunctPtrSet["mono_class_is_generic"]->FunctionAddress != 0;
-	if (
+		bool IsGenericExist = FunctSet->FunctPtrSet.find("mono_class_is_generic") != FunctSet->FunctPtrSet.end() and FunctSet->FunctPtrSet["mono_class_is_generic"]->FunctionAddress != 0;
+		if (
 			(
 				IsGenericExist and
 				FunctSet->FunctPtrSet["mono_class_is_generic"]->Call<int>(CALL_TYPE_CDECL, *ThreadFunctionList, ClassAddress) == 0
-			) or
+				) or
 			!IsGenericExist
-		) {
-		return FunctSet->FunctPtrSet["mono_compile_method"]->Call<DWORD_PTR>(CALL_TYPE_CDECL, *ThreadFunctionList, Method->Handle);
+			) {
+			return FunctSet->FunctPtrSet["mono_compile_method"]->Call<DWORD_PTR>(CALL_TYPE_CDECL, *ThreadFunctionList, Method->Handle);
+		}
 	}
 	return 0;
 }

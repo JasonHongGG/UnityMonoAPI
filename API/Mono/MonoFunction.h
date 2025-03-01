@@ -7,6 +7,7 @@
 #include <tuple>
 #include <variant>
 #include "MonoConst.h"
+#include "MonoIL2CPPConst.h"
 #include "MonoUtils.h"
 #include "../System/Memory.h"
 #include "../System/Process.h"
@@ -24,7 +25,11 @@ public:
 		void*, std::string
 	>;
 public:
-	MonoNativeFunc(std::string functName) : Name(functName){}
+	MonoNativeFunc(std::string functName) 
+	{
+		if(IsIL2CPP) this->Name = functName;//"il2cpp" + functName;
+		else this->Name = functName;
+	}
 
 	template <typename T, typename... Args>
 	T Call(int CallType, std::vector<DWORD_PTR> ThreadFunctionList = {0,0,0}, Args... args)
@@ -62,7 +67,7 @@ public:
 		std::vector<bool> isFloatOrDouble = { std::is_floating_point_v<Args>... };
 			
 
-		std::vector<int> property = mono_native_func_property[Name];
+		std::vector<int> property = IsIL2CPP ? il2cpp_native_func_property[Name] : mono_native_func_property[Name];
 		int ArgsCnt = argList.size();
 		ValueTypeEnum ReturnType = (ValueTypeEnum)property[1];
 
@@ -183,11 +188,20 @@ public:
 class MonoNativeFuncSet
 {
 public:
+
 	std::map<std::string, MonoNativeFunc*> FunctPtrSet;
 public:
 	MonoNativeFuncSet() {
-		for (const auto& [functName, property] : mono_native_func_property) {
-			FunctPtrSet[functName] = new MonoNativeFunc(functName);
+
+		if (IsIL2CPP) {
+			for (const auto& [functName, property] : il2cpp_native_func_property) {
+				FunctPtrSet[functName] = new MonoNativeFunc(functName);
+			}
+		}
+		else {
+			for (const auto& [functName, property] : mono_native_func_property) {
+				FunctPtrSet[functName] = new MonoNativeFunc(functName);
+			}
 		}
 	}
 
