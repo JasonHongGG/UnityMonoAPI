@@ -228,3 +228,45 @@ void MemoryRegionManager::PrintContent(bool prologue, MEMORY_BASIC_INFORMATION m
         printf("--------------------------------------------------------------------------------------------------- \n");
     }
 }
+
+DWORD_PTR MemoryRegionManager::MemoryAlloc(HANDLE procHanlder, DWORD_PTR Address, size_t size, DWORD type, DWORD protect)
+{
+    LPVOID pMemory = VirtualAllocEx(
+        procHanlder, // 當前進程
+        (LPVOID)Address,                // 讓系統選擇地址
+        size,                // 內存大小
+        type, // 分配並提交
+        protect       // 可讀寫
+    );
+
+    return (DWORD_PTR)pMemory;
+}
+
+void MemoryRegionManager::MemoryFree(HANDLE procHanlder, DWORD_PTR Address)
+{
+    VirtualFreeEx(procHanlder, LPVOID(Address), 0, MEM_RELEASE);
+}
+
+void MemoryRegionManager::CreateRemoteThreadAndExcute(HANDLE hProc, DWORD_PTR ExecuteMemoryAddress)
+{
+    DWORD OldProtect;
+    VirtualProtectEx(hProc, (LPVOID)ExecuteMemoryAddress, 4096, PAGE_EXECUTE_READWRITE, &OldProtect);
+    HANDLE hThread = CreateRemoteThread(hProc, NULL, 0, (LPTHREAD_START_ROUTINE)ExecuteMemoryAddress, NULL, 0, NULL);
+    WaitForSingleObject(hThread, INFINITE);
+    CloseHandle(hThread);
+}
+
+void MemoryRegionManager::CheckMemoryProtect(HANDLE hProc, DWORD_PTR address)
+{
+    MEMORY_BASIC_INFORMATION mbi;
+    if (VirtualQueryEx(hProc, (LPCVOID)address, &mbi, sizeof(mbi))) {
+        std::cout << "Memory State: " << mbi.State << std::endl;
+        std::cout << "Memory Protect: " << mbi.Protect << std::endl;
+    }
+}
+
+void MemoryRegionManager::SetExecutable(HANDLE hProc, DWORD_PTR address, size_t size)
+{
+    DWORD OldProtect;
+    VirtualProtectEx(hProc, (LPVOID)address, size, PAGE_EXECUTE_READWRITE, &OldProtect);
+}

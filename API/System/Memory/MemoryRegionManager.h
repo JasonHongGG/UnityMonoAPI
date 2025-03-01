@@ -24,47 +24,15 @@ public:
 
     void WriteMemoryRegionsToFile(const std::vector<MEMORY_BASIC_INFORMATION>& regions, const std::string& filename);
 
-    DWORD_PTR MemoryAlloc(HANDLE procHanlder, DWORD_PTR Address = NULL, size_t size = 4096, DWORD type = MEM_COMMIT | MEM_RESERVE, DWORD protect = PAGE_EXECUTE_READWRITE)
-    {
-        LPVOID pMemory = VirtualAllocEx(
-                            procHanlder, // 當前進程
-                            (LPVOID)Address,                // 讓系統選擇地址
-                            size,                // 內存大小
-                            type, // 分配並提交
-                            protect       // 可讀寫
-                        );
+    DWORD_PTR MemoryAlloc(HANDLE procHanlder, DWORD_PTR Address = NULL, size_t size = 4096, DWORD type = MEM_COMMIT | MEM_RESERVE, DWORD protect = PAGE_EXECUTE_READWRITE);
 
-        return (DWORD_PTR)pMemory;
-    }
+    void MemoryFree(HANDLE procHanlder, DWORD_PTR Address);
 
-	void MemoryFree(HANDLE procHanlder, DWORD_PTR Address)
-	{
-		VirtualFreeEx(procHanlder, LPVOID(Address), 0, MEM_RELEASE);
-	}
+    void CreateRemoteThreadAndExcute(HANDLE hProc, DWORD_PTR ExecuteMemoryAddress);
 
-    void CreateRemoteThreadAndExcute(HANDLE hProc, DWORD_PTR ExecuteMemoryAddress)
-    {
-        DWORD OldProtect;
-        VirtualProtectEx(ProcessInfo::hProcess, (LPVOID)ExecuteMemoryAddress, 4096, PAGE_EXECUTE_READWRITE, &OldProtect);
-        HANDLE hThread = CreateRemoteThread(hProc,  NULL, 0, (LPTHREAD_START_ROUTINE)ExecuteMemoryAddress,NULL, 0, NULL );
-        WaitForSingleObject(hThread, INFINITE);
-        CloseHandle(hThread);
-    }
+    void CheckMemoryProtect(HANDLE hProc, DWORD_PTR address);
 
-    void CheckMemoryProtect(DWORD_PTR address)
-    {
-        MEMORY_BASIC_INFORMATION mbi;
-        if (VirtualQueryEx(ProcessInfo::hProcess, (LPCVOID)address, &mbi, sizeof(mbi))) {
-            std::cout << "Memory State: " << mbi.State << std::endl;
-            std::cout << "Memory Protect: " << mbi.Protect << std::endl;
-        }
-    }
-
-	void SetExecutable(DWORD_PTR address, size_t size = 4096)
-	{
-		DWORD OldProtect;
-		VirtualProtectEx(ProcessInfo::hProcess, (LPVOID)address, size, PAGE_EXECUTE_READWRITE, &OldProtect);
-	}
+    void SetExecutable(HANDLE hProc, DWORD_PTR address, size_t size = 4096);
 
 private:
     void PrintContent(bool prologue = false, MEMORY_BASIC_INFORMATION mbi = MEMORY_BASIC_INFORMATION());

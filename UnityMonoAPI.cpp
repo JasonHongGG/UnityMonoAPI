@@ -72,7 +72,7 @@ int main()
 		{"Assembly-CSharp.dll", {"ShopRoutine"}},
 		});
 	MonoClass* ShopRoutine = MonoClassMap["Assembly-CSharp.dll"][0];
-	ShopRoutine->Instance = 0x0000022BAF211400;
+	ShopRoutine->Instance = 0x000001F1EDB3CA00;
 	MonoMethod* SetUp = ShopRoutine->FindMethod("Close");
 	SetUp->Call<DWORD_PTR>();
 
