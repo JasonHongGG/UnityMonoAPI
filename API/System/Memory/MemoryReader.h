@@ -1,5 +1,6 @@
 #pragma once
 #include <Windows.h>
+#include <fstream>
 #include "../Process.h"
 
 class MemoryReader {
@@ -22,6 +23,9 @@ public:
 
     template <class T>
     bool IsEqual(DWORD_PTR address, T value);
+
+
+	std::vector<uint8_t> ReadAllBytesOfFile(const std::string& path);
 private:
 };
 

@@ -117,4 +117,14 @@ public:
 		}
 		return ResultImages;
 	}
+
+	MonoImage* OpenImageFromData(std::vector<uint8_t> data)
+	{
+		std::string dataStr(data.begin(), data.end());
+		CString DataStrObject(dataStr);
+		CValue Status(0);
+
+		DWORD_PTR ImageAddress = FunctSet->FunctPtrSet["mono_image_open_from_data"]->Call<DWORD_PTR>(CALL_TYPE_CDECL, *ThreadFunctionList, DataStrObject.Address, dataStr.size(), 1, Status.Address);
+		return new MonoImage(MonoAssemblyImage(0), "Data", ImageAddress);
+	}
 };

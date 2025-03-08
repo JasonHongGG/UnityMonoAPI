@@ -65,7 +65,7 @@ void Test1()
 	}
 }
 
-int main()
+void Test2()
 {
 	InitialProcess(L"Wildfrost.exe");
 	std::map<std::string, std::vector<MonoClass*>> MonoClassMap = MonoMgr.ClassAPI->FindClassesInImageByNames({
@@ -75,5 +75,18 @@ int main()
 	ShopRoutine->Instance = 0x000001F95D39CD00;
 	MonoMethod* SetUp = ShopRoutine->FindMethod("Close");
 	SetUp->Call<DWORD_PTR>();
+}
+
+void Test3()
+{
+	InitialProcess(L"REPO");
+	std::string assemblyPath = "r.e.p.o cheat.dll";
+	std::vector<uint8_t> assembly = MemMgr.MemReader.ReadAllBytesOfFile(assemblyPath);
+	MonoImage* image = MonoMgr.ImageAPI->OpenImageFromData(assembly);
+
+}
+
+int main()
+{
 
 }
