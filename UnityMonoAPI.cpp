@@ -93,6 +93,8 @@ void Test3()
 	MonoClass* Loader = MonoClassMap["r.e.p.o cheat"][0];
 	MonoMethod* Init = Loader->FindMethod("Init");
 	Init->Call<DWORD_PTR>();
+
+	MonoMgr.ImageAPI->CloseAssembly(assemblyAddress);
 }
 
 int main()

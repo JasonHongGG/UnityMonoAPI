@@ -118,9 +118,9 @@ public:
 		return ResultImages;
 	}
 
-	DWORD_PTR OpenRawImageFromData(std::vector<uint8_t> data)
+	DWORD_PTR OpenRawImageFromData(std::vector<uint8_t> Data)
 	{
-		std::string dataStr(data.begin(), data.end());
+		std::string dataStr(Data.begin(), Data.end());
 		CString DataStrObject(dataStr);
 		CValue Status(0);
 
@@ -129,11 +129,11 @@ public:
 		return ImageAddress;
 	}
 
-	DWORD_PTR OpenAssemblyFromRawImage(DWORD_PTR rawImageAddress)
+	DWORD_PTR OpenAssemblyFromRawImage(DWORD_PTR RawImageAddress)
 	{
 		CValue Status(0);
 		CValue<BYTE> ByetValue(0);
-		DWORD_PTR AssemblyAddress = FunctSet->FunctPtrSet["mono_assembly_load_from_full"]->Call<DWORD_PTR>(CALL_TYPE_CDECL, *ThreadFunctionList, rawImageAddress, ByetValue.Address, Status.Address, 0);
+		DWORD_PTR AssemblyAddress = FunctSet->FunctPtrSet["mono_assembly_load_from_full"]->Call<DWORD_PTR>(CALL_TYPE_CDECL, *ThreadFunctionList, RawImageAddress, ByetValue.Address, Status.Address, 0);
 		return AssemblyAddress;
 
 		/*
@@ -149,5 +149,10 @@ public:
 
 		return Result;
 		*/
+	}
+
+	void CloseAssembly(DWORD_PTR AssemblyNameAddress)
+	{
+		DWORD_PTR result = FunctSet->FunctPtrSet["mono_assembly_close"]->Call<DWORD_PTR>(CALL_TYPE_CDECL, *ThreadFunctionList, AssemblyNameAddress);
 	}
 };
