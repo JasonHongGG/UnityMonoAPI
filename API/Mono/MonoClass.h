@@ -112,7 +112,7 @@ public:
 		: ImageAPI(imageAPI), FunctSet(functSet), ThreadFunctionList(threadFunctionList) {
 	}
 
-	MonoClass* GetClassByImage(MonoImage* Image, std::string ClassName);
+	MonoClass* GetClassByImage(MonoImage* Image, std::string DefaultClassNamespace, std::string ClassName);
 
 	MonoClass* FindClassInImageByName(std::string ImageName, std::string ClassName);
 

@@ -26,7 +26,8 @@ inline std::vector<std::string> mono_native_func_name = {
     "mono_object_unbox", "mono_object_new", "mono_class_get_type", "mono_class_get_nesting_type", "mono_image_open",
     "mono_method_desc_search_in_image", "mono_runtime_invoke", "mono_runtime_object_init", "mono_assembly_name_new",
     "mono_assembly_loaded", "mono_assembly_open", "mono_field_static_get_value", "mono_field_static_set_value",
-    "mono_class_get_field_from_name", "mono_method_get_flags", "mono_type_get_class", "mono_class_get_flags"
+    "mono_class_get_field_from_name", "mono_method_get_flags", "mono_type_get_class", "mono_class_get_flags",
+    "mono_assembly_load_from_full", "mono_image_strerror"
 };
 
 inline std::map<std::string, std::vector<int>> mono_native_func_property = {
@@ -121,6 +122,9 @@ inline std::map<std::string, std::vector<int>> mono_native_func_property = {
     {"mono_class_get_field_from_name" , {2, TYPE_VOID_P}},
     {"mono_method_get_flags" , {2, TYPE_UINT32}},
     {"mono_type_get_class" , {1, TYPE_VOID_P}},
+    {"mono_assembly_load_from_full", {4, TYPE_VOID_P}},
+    {"mono_image_strerror", {4, TYPE_CHAR_P}},
+    
 };
 
 inline int FIELD_ATTRIBUTE_FIELD_ACCESS_MASK = 0x0007;

@@ -79,14 +79,23 @@ void Test2()
 
 void Test3()
 {
-	InitialProcess(L"REPO");
-	std::string assemblyPath = "r.e.p.o cheat.dll";
+	// Load Custom DLL 
+	InitialProcess(L"REPO.exe");
+	std::string assemblyPath = "r.e.p.o.dll";
 	std::vector<uint8_t> assembly = MemMgr.MemReader.ReadAllBytesOfFile(assemblyPath);
-	MonoImage* image = MonoMgr.ImageAPI->OpenImageFromData(assembly);
+	DWORD_PTR rawImageAddress = MonoMgr.ImageAPI->OpenRawImageFromData(assembly);
+	DWORD_PTR assemblyAddress = MonoMgr.ImageAPI->OpenAssemblyFromRawImage(rawImageAddress);
 
+	std::map<std::string, std::vector<MonoClass*>> MonoClassMap = MonoMgr.ClassAPI->FindClassesInImageByNames({
+		{"r.e.p.o cheat", {"Loader"}},
+		});
+
+	MonoClass* Loader = MonoClassMap["r.e.p.o cheat"][0];
+	MonoMethod* Init = Loader->FindMethod("Init");
+	Init->Call<DWORD_PTR>();
 }
 
 int main()
 {
-
+	Test3();
 }

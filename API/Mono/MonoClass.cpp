@@ -129,7 +129,7 @@ MonoMethod* MonoClass::FindMethod(std::string MethodName, int ParaCnt)
 
 
 
-MonoClass* MonoClassAPI::GetClassByImage(MonoImage* Image, std::string ClassName)
+MonoClass* MonoClassAPI::GetClassByImage(MonoImage* Image, std::string DefaultClassNamespace, std::string ClassName)
 {
 	// String Preprocess
 	std::string ClassNamespace = "";
@@ -144,11 +144,16 @@ MonoClass* MonoClassAPI::GetClassByImage(MonoImage* Image, std::string ClassName
 	// Get Class
 	CString ClassNameObject(ClassName);
 	CString ClassNamespaceObject(ClassNamespace);
+	std::replace(DefaultClassNamespace.begin(), DefaultClassNamespace.end(), ' ', '_');
+	CString DefaultClassNamespaceObject(DefaultClassNamespace);
 	DWORD_PTR ClassAddress = 0x0;
 	if (MonoNativeFuncSet::NativeFunctionExist(FunctSet, "mono_class_from_name_case"))
 		ClassAddress = FunctSet->FunctPtrSet["mono_class_from_name_case"]->Call<DWORD_PTR>(CALL_TYPE_CDECL, *ThreadFunctionList, Image->Handle, ClassNamespaceObject.Address, ClassNameObject.Address);
 	if (!ClassAddress)
 		ClassAddress = FunctSet->FunctPtrSet["mono_class_from_name"]->Call<DWORD_PTR>(CALL_TYPE_CDECL, *ThreadFunctionList, Image->Handle, ClassNamespaceObject.Address, ClassNameObject.Address);
+	if (!ClassAddress)
+		ClassAddress = FunctSet->FunctPtrSet["mono_class_from_name"]->Call<DWORD_PTR>(CALL_TYPE_CDECL, *ThreadFunctionList, Image->Handle, DefaultClassNamespaceObject.Address, ClassNameObject.Address);
+
 	ClassAddress &= 0xFFFFFFFFFFFF; // 12 bytes
 
 	if (ClassAddress)
@@ -161,7 +166,7 @@ MonoClass* MonoClassAPI::FindClassInImageByName(std::string ImageName, std::stri
 {
 	MonoImage* Image = ImageAPI->FindImageByName(ImageName);
 	if (Image)
-		GetClassByImage(Image, ClassName);
+		GetClassByImage(Image, ImageName, ClassName);
 	return nullptr;
 }
 
@@ -172,7 +177,7 @@ std::vector<MonoClass*> MonoClassAPI::FindClassesInImageByName(std::string Image
 	if (Image)
 		for (int i = 0; i < ClassNames.size(); i++) {
 			std::string ClassName = ClassNames[i];
-			ResultClasses.push_back(GetClassByImage(Image, ClassName));
+			ResultClasses.push_back(GetClassByImage(Image, ImageName, ClassName));
 		}
 	return ResultClasses;
 }
@@ -188,7 +193,7 @@ std::map<std::string, std::vector<MonoClass*>> MonoClassAPI::FindClassesInImageB
 	for (int i = 0; i < ImageVector.size(); i++) {
 		MonoImage* CurImage = ImageVector[i];
 		for (int j = 0; j < Data[CurImage->Name].size(); j++) {
-			ResultClasses[CurImage->Name].push_back(GetClassByImage(CurImage, Data[CurImage->Name][j]));
+			ResultClasses[CurImage->Name].push_back(GetClassByImage(CurImage, CurImage->Name, Data[CurImage->Name][j]));
 		}
 	}
 	return ResultClasses;

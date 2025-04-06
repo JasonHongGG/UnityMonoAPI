@@ -4,6 +4,7 @@
 #include <string>
 #include "Const.h"
 #include "MonoFunction.h"
+#include "../System/Memory.h"
 
 class MonoAssemblyImage
 {
@@ -117,13 +118,36 @@ public:
 		return ResultImages;
 	}
 
-	MonoImage* OpenImageFromData(std::vector<uint8_t> data)
+	DWORD_PTR OpenRawImageFromData(std::vector<uint8_t> data)
 	{
 		std::string dataStr(data.begin(), data.end());
 		CString DataStrObject(dataStr);
 		CValue Status(0);
 
 		DWORD_PTR ImageAddress = FunctSet->FunctPtrSet["mono_image_open_from_data"]->Call<DWORD_PTR>(CALL_TYPE_CDECL, *ThreadFunctionList, DataStrObject.Address, dataStr.size(), 1, Status.Address);
-		return new MonoImage(MonoAssemblyImage(0), "Data", ImageAddress);
+		//return new MonoImage(MonoAssemblyImage(0), "Data", ImageAddress);
+		return ImageAddress;
+	}
+
+	DWORD_PTR OpenAssemblyFromRawImage(DWORD_PTR rawImageAddress)
+	{
+		CValue Status(0);
+		CValue<BYTE> ByetValue(0);
+		DWORD_PTR AssemblyAddress = FunctSet->FunctPtrSet["mono_assembly_load_from_full"]->Call<DWORD_PTR>(CALL_TYPE_CDECL, *ThreadFunctionList, rawImageAddress, ByetValue.Address, Status.Address, 0);
+		return AssemblyAddress;
+
+		/*
+		Another way to load assembly
+		DWORD_PTR ImageAddress = FunctSet->FunctPtrSet["mono_assembly_get_image"]->Call<DWORD_PTR>(CALL_TYPE_CDECL, *ThreadFunctionList, AssemblyAddress);
+	
+		CString NamespaceObject("r.e.p.o_cheat");
+		CString ClassNameObject("Loader");
+		CString MethodNameObject("Init");
+		DWORD_PTR ClassAddress = FunctSet->FunctPtrSet["mono_class_from_name"]->Call<DWORD_PTR>(CALL_TYPE_CDECL, *ThreadFunctionList, ImageAddress, NamespaceObject.Address, ClassNameObject.Address);
+		DWORD_PTR MethonAddress = FunctSet->FunctPtrSet["mono_class_get_method_from_name"]->Call<DWORD_PTR>(CALL_TYPE_CDECL, *ThreadFunctionList, ClassAddress, MethodNameObject.Address, 0);
+		DWORD_PTR Result = FunctSet->FunctPtrSet["mono_runtime_invoke"]->Call<DWORD_PTR>(CALL_TYPE_CDECL, *ThreadFunctionList, MethonAddress, 0, 0, Status.Address);
+
+		return Result;
+		*/
 	}
 };

@@ -215,6 +215,7 @@ public:
 				Code.insert(Code.end(), TempCode.begin(), TempCode.end());
 				RegisterCnt++;
 			}
+			MemMgr.RegionMgr.SetExecutable(ProcessInfo::hProcess, argList[i], argSizeList[i]);
 		}
 
 		for (size_t i = 4; i < argList.size(); ++i) {
